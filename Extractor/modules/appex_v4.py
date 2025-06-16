@@ -420,6 +420,7 @@ async def appex_v5_txt(app, message, api, name):
                 elapsed_time = end_time - start_time
                 print(f"Elapsed time: {elapsed_time:.1f} seconds")
                 np = filename1
+                user_id = message.from_user.id
                 mention = f'<a href="tg://user?id={user_id}">{user_id}</a>'
                 caption =(f"࿇ ══━━{mention}━━══ ࿇\n\n"
                          f"🌀 **Aᴘᴘ Nᴀᴍᴇ** : <b>{app_name}</b>\n"
