@@ -13,7 +13,7 @@ async def send_otpp(app, message):
     api_txt = api.text
     name = api_txt.split('.')[0].replace("api", "") if api else api_txt.split('.')[0]
     if "api" in api_txt:
-        await send_otp(app, message, api_txt)
+        await send_otp(app, message, api_txt, name)
     else:
         await app.send_message(message.chat.id, "INVALID INPUT IF YOU DONT KNOW API GO TO FIND API OPTION")
         
