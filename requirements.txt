@@ -19,4 +19,5 @@ tqdm
 colorama
 termcolor
 dotenv
+flask
 
