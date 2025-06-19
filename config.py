@@ -8,7 +8,7 @@ API_ID = int(os.environ.get("API_ID", "26330942"))
 # ------------------------------------------------
 API_HASH = os.environ.get("API_HASH","5de9fd033aa828dfd3bf0c28adeee660")
 # ------------------------------------------------
-BOT_TOKEN = os.environ.get("BOT_TOKEN", "8157250784:AAEA7CZdV2HkAmRFFG_8cLt9eY9eUT3I2Pk")
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "8036273889:AAFdoAgGDEEwcQJ3TDq8ABqPqRuY-7oOvfk")
 # ------------------------------------------------
 BOT_USERNAME = os.environ.get("BOT_USERNAME", "@Lllllllbbbot")
 BOT_TEXT = "𝐏𝐑𝐎 𝐄𝐗𝐓𝐑𝐀𝐂𝐓𝐎𝐑 SuJaL"
