@@ -4,36 +4,36 @@ from os import getenv
 
 
 # ------------------------------------------------
-API_ID = int(os.environ.get("API_ID", "25933223"))
+API_ID = int(os.environ.get("API_ID", "25318125"))
 # ------------------------------------------------
-API_HASH = os.environ.get("API_HASH","6ef5a426d85b7f01562a41e6416791d3")
+API_HASH = os.environ.get("API_HASH","b29fb6a928e8b8a3308f8c2d3ba9cfb0")
 # ------------------------------------------------
-BOT_TOKEN = os.environ.get("BOT_TOKEN", "8036273889:AAFdoAgGDEEwcQJ3TDq8ABqPqRuY-7oOvfk")
+BOT_TOKEN = os.environ.get("BOT_TOKEN")
 # ------------------------------------------------
-BOT_USERNAME = os.environ.get("BOT_USERNAME", "@SuJaLtxtoopvbot")
-BOT_TEXT = "𝐏𝐑𝐎 𝐄𝐗𝐓𝐑𝐀𝐂𝐓𝐎𝐑 Sᑌᒍᗩᒪ"
+BOT_USERNAME = os.environ.get("BOT_USERNAME", "@LUCIFEREXTRACTORBOT")
+BOT_TEXT = "TXT EXTRACTOR"
 # ------------------------------------------------
-OWNER_ID = int(os.environ.get("OWNER_ID", "6883471516"))
+OWNER_ID = int(os.environ.get("OWNER_ID", "7764674199"))
 # ------------------------------------------------
 # //LOG CHANNEL ID 
-CHANNEL_ID = int(os.environ.get("CHANNEL_ID", "-1002799217873"))
+CHANNEL_ID = int(os.environ.get("CHANNEL_ID", "-1002610898117"))
 
 # //FORCE_CHANNEL_ID
-CHANNEL_ID2 = int(os.environ.get("CHANNEL_ID2", "-1002799217873")) 
+#CHANNEL_ID2 = int(os.environ.get("CHANNEL_ID2", "-1002799217873")) 
 # -----------------------------------------------
-MONGO_URL = os.environ.get("MONGO_URL", "mongodb+srv://biklriplit:efaXfv2Ps9MRfner@cluster0.4hfu8zj.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+MONGO_URL = os.environ.get("MONGO_URL")
 # -----------------------------------------------
-PREMIUM_LOGS = int(os.environ.get("PREMIUM_LOGS", "-1002799217873"))
+PREMIUM_LOGS = int(os.environ.get("PREMIUM_LOGS", "-1002844381920"))
 # -----------------------------------------------
-join = '<a href="https://t.me/+hZ8gqfe8qRljZTA1">✳️ Bᴀᴄᴋᴜᴘ</a>'
+join = '<a href="https://t.me/urs_lucifer">✳️ Bᴀᴄᴋᴜᴘ</a>'
 # -----------------------------------------------
 UNSPLASH_ACCESS_KEY = 'RabDRmuXXBobanmwwbvpP5LwoG4J8ox34y5Sstz-9jk'
 # -----------------------------------------------
 UNSPLASH_QUERY = 'animal baby'
 # -----------------------------------------------
-ADMIN_BOT_USERNAME = "youcndoitbro" #without @
+ADMIN_BOT_USERNAME = "LUCIFEREXTRACTORBOT" #without @
 
-THUMB_URL = os.environ.get("THUMB_URL", "https://i.ibb.co/mFv7r6H4/d997e7637c2a.jpg")
+THUMB_URL = os.environ.get("THUMB_URL", "https://graph.org/file/2fbd9fda0f646b1422f05-218a2421d48d601d10.jpg")
 
 
 
