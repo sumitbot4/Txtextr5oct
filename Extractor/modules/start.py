@@ -47,9 +47,9 @@ buttons = InlineKeyboardMarkup([
                   InlineKeyboardButton("🔍 Fɪɴᴅ Aᴘɪ", callback_data="findapi_"),
                   InlineKeyboardButton("📓 Aᴘᴘx Lɪsᴛ", callback_data="appxlist")
                 ],
-                # [
-                #   InlineKeyboardButton("🏦 TXT 2 HTML SOOn")
-                # ]
+                [
+                   InlineKeyboardButton("🕹ᴄʜᴀɴɴᴇʟ", url="https://t.me/urs_lucifer")
+                ]
                 
                 ])
 
@@ -394,7 +394,7 @@ async def start(_, message):
         return
     try:
         await message.reply_photo(
-            photo=photo(),
+            photo=random.choice(script.IMG),
             caption=script.START_TXT.format(message.from_user.mention),
             reply_markup=buttons
         )
