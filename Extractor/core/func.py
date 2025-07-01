@@ -1,4 +1,3 @@
-from config import CHANNEL_ID2 
 from Extractor.core import script
 from pyrogram.errors import UserNotParticipant
 from pyrogram.types import *
