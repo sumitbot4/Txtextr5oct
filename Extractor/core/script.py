@@ -3,6 +3,13 @@ from config import ADMIN_BOT_USERNAME
 
 
 # ------------------------------------------------------------ #
+IMG = [
+"https://graph.org/file/d81baf8451cf1627ae3f6-c819d31887f32db07d.jpg",
+"https://graph.org/file/b29c2581eab59309d72cf-86cea750f2e54d6798.jpg",
+"https://graph.org/file/37eae141246f30803c113-f2a0774fc851ca0562.jpg",
+"https://graph.org/file/4afaa8ad4b2f757bdf9d7-47d5f883ea944a498d.jpg",
+"https://graph.org/file/153308ce2d6f968e25965-d310556f3d191bcc62.jpg",
+]
 
 START_TXT = """
 **ʜᴇʟʟᴏ** {},
