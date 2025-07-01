@@ -25,40 +25,23 @@ async def gen_link(app,chat_id):
 
 async def subscribe(app, message):
     try:
-        update_channel = CHANNEL_ID2
-        if not update_channel:  # If no channel ID is set
-            return 0
-            
-        try:
-            user = await app.get_chat_member(update_channel, message.from_user.id)
-            if user.status == "kicked":
-                await message.reply_text("Sorry Sir, You are Banned. Contact My Support Group @Xyzaxv")
-                return 1
-        except UserNotParticipant:
-            try:
-                url = await gen_link(app, update_channel)
-                await message.reply_photo(
-                    photo="https://envs.sh/sPH.jpg",
-                    caption=script.FORCE_MSG.format(message.from_user.mention), 
-                    reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🤖 ᴊᴏɪɴ ᴜᴘᴅᴀᴛᴇs ᴄʜᴀɴɴᴇʟ 🤖", url=f"{url}")]])
-                )
-            except Exception:
-                # If we can't get invite link, just show a simple message
-                await message.reply_text(
-                    "Please join our updates channel to use the bot.",
-                    reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🤖 ᴊᴏɪɴ ᴜᴘᴅᴀᴛᴇs ᴄʜᴀɴɴᴇʟ 🤖", url="https://t.me/sujaloop")]])
-                )
+        user = await app.get_chat_member("URS_LUCIFER", message.from_user.id)
+        if user.status == "kicked":
+            await message.reply_text("Sorry Sir, You are Banned.")
             return 1
-        except Exception as e:
-            print(f"Error in subscribe: {str(e)}")
-            return 0  # Allow user to continue if there's any error
         return 0
+    except UserNotParticipant:
+        await message.reply_photo(
+            photo="https://graph.org/file/2fbd9fda0f646b1422f05-218a2421d48d601d10.jpg",
+            caption=script.FORCE_MSG.format(message.from_user.mention),
+            reply_markup=InlineKeyboardMarkup([[
+                InlineKeyboardButton("🔗 Join Channel", url="https://t.me/URS_LUCIFER")
+            ]])
+        )
+        return 1
     except Exception as e:
-        print(f"Error in subscribe outer: {str(e)}")
-        return 0  # Allow user to continue if there's any error
-
-
-
+        await message.reply_text(f"⚠️ Something Went Wrong: {e}")
+        return 1
 async def get_seconds(time_string):
     def extract_value_and_unit(ts):
         value = ""
