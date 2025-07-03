@@ -241,7 +241,7 @@ async def v2_new(app, message, token, userid, hdr1, app_name, raw_text2, api_bas
                 caption=caption,
                 parse_mode="html"
             )
-            await app.send_document(PREMIUM_LOGS, file_name, caption=caption)
+            await app.send_document(PREMIUM_LOGS, file_name, caption=caption, parse_mode="html")
 
             # Cleanup
             try:
