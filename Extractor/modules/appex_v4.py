@@ -445,8 +445,8 @@ async def appex_v5_txt(app, message, api, name):
                     await input2.delete(True)
                     await m1.delete(True)
                     await m2.delete(True)
-                    await app.send_document(message.chat.id, filename1, caption=caption)
-                    await app.send_document(PREMIUM_LOGS, filename1, caption=caption)
+                    await app.send_document(message.chat.id, filename1, caption=caption, parse_mode="html")
+                    await app.send_document(PREMIUM_LOGS, filename1, caption=caption, parse_mode="html")
                     
             
                 except Exception as e:
