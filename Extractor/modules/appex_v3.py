@@ -412,14 +412,14 @@ async def appex_v3_txt(app, message, api, name):
                 print(f"Elapsed time: {elapsed_time:.1f} seconds")
                 np = filename1
                 caption =(f"࿇ ══━━ 🏦 ━━══ ࿇\n\n"
-                         f"🌀 **Aᴘᴘ Nᴀᴍᴇ** : {app_name}\n"
+                         f"🌀 <b>Aᴘᴘ Nᴀᴍᴇ</b> : {app_name}\n"
                       #   f"🔑 **Oʀɢ Cᴏᴅᴇ** : `{org_code}`\n"
                          f"============================\n\n"
-                         f"🎯 **Bᴀᴛᴄʜ Nᴀᴍᴇ** : `{raw_text2}_{txtn}`\n"
-                         f"🌟 **Cᴏᴜʀsᴇ Tʜᴜᴍʙɴᴀɪʟ** : <a href={cp}>Thumbnail</a>\n\n"
-                         f"🌐 **Jᴏɪɴ Us** : {join}\n"
-                         f"⌛ **Tɪᴍᴇ Tᴀᴋᴇɴ** : {elapsed_time:.1f} seconds\n\n"
-                         f"❄️ **Dᴀᴛᴇ** : {time_new}")
+                         f"🎯 <b>Bᴀᴛᴄʜ Nᴀᴍᴇ</b> : `{raw_text2}_{txtn}`\n"
+                         f"🌟 <b>Cᴏᴜʀsᴇ Tʜᴜᴍʙɴᴀɪʟ</b> : <a href={cp}>Thumbnail</a>\n\n"
+                         f"🌐 <b>Jᴏɪɴ Us</b> : {join}\n"
+                         f"⌛ <b>Tɪᴍᴇ Tᴀᴋᴇɴ</b> : {elapsed_time:.1f} seconds\n\n"
+                         f"❄️ <b>Dᴀᴛᴇ</b> : {time_new}")
               #  c_text = (
                   #  f"**APP NAME: <b>{app_name}</b>**\n"
                   #  f"**BatchName:** {raw_text2}_{txtn}\n"
