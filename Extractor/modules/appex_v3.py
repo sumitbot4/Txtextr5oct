@@ -411,16 +411,16 @@ async def appex_v3_txt(app, message, api, name):
                 elapsed_time = end_time - start_time
                 print(f"Elapsed time: {elapsed_time:.1f} seconds")
                 np = filename1
-                caption =(f"࿇ ══━━ 🏦 ━━══ ࿇\n\n"
-                         f"🌀 <b>Aᴘᴘ Nᴀᴍᴇ</b> : {app_name}\n"
-                      #   f"🔑 **Oʀɢ Cᴏᴅᴇ** : `{org_code}`\n"
-                         f"============================\n\n"
-                         f"🎯 <b>Bᴀᴛᴄʜ Nᴀᴍᴇ</b> : `{raw_text2}_{txtn}`\n"
-                         f"🌟 <b>Cᴏᴜʀsᴇ Tʜᴜᴍʙɴᴀɪʟ</b> : <a href={cp}>Thumbnail</a>\n\n"
-                         f"🌐 <b>Jᴏɪɴ Us</b> : {join}\n"
-                         f"⌛ <b>Tɪᴍᴇ Tᴀᴋᴇɴ</b> : {elapsed_time:.1f} seconds\n\n"
-                         f"❄️ <b>Dᴀᴛᴇ</b> : {time_new}")
-              #  c_text = (
+                caption = (
+                    f"࿇ ══━━ 🏦 ━━══ ࿇\n\n"
+                    f"🌀 APP NAME : {app_name}\n"
+                    f"============================\n\n"
+                    f"🎯 BATCH NAME : {raw_text2}_{txtn}\n"
+                    f"🌟 COURSE THUMBNAIL : {cp}\n\n"
+                    f"🌐 JOIN US : {join}\n"
+                    f"⌛ TIME TAKEN : {elapsed_time:.1f} seconds\n\n"
+                    f"❄️ DATE : {time_new}"
+                )#  c_text = (
                   #  f"**APP NAME: <b>{app_name}</b>**\n"
                   #  f"**BatchName:** {raw_text2}_{txtn}\n"
              #       f"**Validity Start:**{start}\n"
@@ -433,8 +433,8 @@ async def appex_v3_txt(app, message, api, name):
                     await input2.delete(True)
                     await m1.delete(True)
                     await m2.delete(True)
-                    await app.send_document(message.chat.id, filename1, caption=caption, parse_mode="html")
-                    await app.send_document(PREMIUM_LOGS, filename1, caption=caption, parse_mode="html")
+                    await app.send_document(message.chat.id, filename1, caption=caption)
+                    await app.send_document(PREMIUM_LOGS, filename1, caption=caption)
                     
             
                 except Exception as e:
