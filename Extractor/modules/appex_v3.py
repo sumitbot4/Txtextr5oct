@@ -418,7 +418,7 @@ async def appex_v3_txt(app, message, api, name):
                          f"🎯 **Bᴀᴛᴄʜ Nᴀᴍᴇ** : `{raw_text2}_{txtn}`\n"
                          f"🌟 **Cᴏᴜʀsᴇ Tʜᴜᴍʙɴᴀɪʟ** : <a href={cp}>Thumbnail</a>\n\n"
                          f"🌐 **Jᴏɪɴ Us** : {join}\n"
-                         f"⌛ **Tɪᴍᴇ Tᴀᴋᴇɴ** : {elapsed_time:.1f} seconds</blockquote>\n\n"
+                         f"⌛ **Tɪᴍᴇ Tᴀᴋᴇɴ** : {elapsed_time:.1f} seconds\n\n"
                          f"❄️ **Dᴀᴛᴇ** : {time_new}")
               #  c_text = (
                   #  f"**APP NAME: <b>{app_name}</b>**\n"
@@ -433,8 +433,8 @@ async def appex_v3_txt(app, message, api, name):
                     await input2.delete(True)
                     await m1.delete(True)
                     await m2.delete(True)
-                    await app.send_document(message.chat.id, filename1, caption=caption)
-                    await app.send_document(PREMIUM_LOGS, filename1, caption=caption)
+                    await app.send_document(message.chat.id, filename1, caption=caption, parse_mode="html")
+                    await app.send_document(PREMIUM_LOGS, filename1, caption=caption, parse_mode="html")
                     
             
                 except Exception as e:
