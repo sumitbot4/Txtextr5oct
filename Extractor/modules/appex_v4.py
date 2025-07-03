@@ -421,16 +421,16 @@ async def appex_v5_txt(app, message, api, name):
                 print(f"Elapsed time: {elapsed_time:.1f} seconds")
                 np = filename1
                 user_id = message.from_user.id
-                mention = f'<a href="tg://user?id={user_id}">{user_id}</a>'
-                caption =(f"࿇ ══━━{mention}━━══ ࿇\n\n"
-                         f"🌀 <b>Aᴘᴘ Nᴀᴍᴇ</b> : <b>{app_name}</b>\n"
-                        # f"⚡ **Aᴘɪ** : `{api}`\n"
-                         f"============================\n\n"
-                         f"🎯 <b>Bᴀᴛᴄʜ Nᴀᴍᴇ</b> : `{raw_text2}_{txtn}`\n\n"
-                         f"🌐 <b>Jᴏɪɴ Us</b> : {join}\n"
-                         f"⌛ <b>Tɪᴍᴇ Tᴀᴋᴇɴ</b> : {elapsed_time:.1f} seconds\n\n"
-                         f"❄️ <b>Dᴀᴛᴇ</b> : {time_new}")
-            
+                mention = f"User ID: {message.from_user.id}"
+                caption = (
+                    f"࿇ ══━━ {mention} ━━══ ࿇\n\n"
+                    f"🌀 APP NAME : {app_name}\n"
+                    f"============================\n\n"
+                    f"🎯 BATCH NAME : {raw_text2}_{txtn}\n\n"
+                    f"🌐 JOIN US : {join}\n"
+                    f"⌛ TIME TAKEN : {elapsed_time:.1f} seconds\n\n"
+                    f"❄️ DATE : {time_new}"
+                )
              #   c_text = (
                     #f"**APP NAME: <b>{app_name}</b>**\n"
                   #  f"**BatchName:** {raw_text2}_{txtn}\n"
@@ -445,8 +445,8 @@ async def appex_v5_txt(app, message, api, name):
                     await input2.delete(True)
                     await m1.delete(True)
                     await m2.delete(True)
-                    await app.send_document(message.chat.id, filename1, caption=caption, parse_mode="html")
-                    await app.send_document(PREMIUM_LOGS, filename1, caption=caption, parse_mode="html")
+                    await app.send_document(message.chat.id, filename1, caption=caption)
+                    await app.send_document(PREMIUM_LOGS, filename1, caption=caption)
                     
             
                 except Exception as e:
