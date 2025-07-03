@@ -264,7 +264,7 @@ async def appex_v2_txt(app, message, api, name):
                  f"🎯 **Bᴀᴛᴄʜ Nᴀᴍᴇ** : `{sanitized_course_name}`\n"
                  f"🌟 **Cᴏᴜʀsᴇ Tʜᴜᴍʙɴᴀɪʟ** : <a href={cp}>Thumbnail</a>\n\n"
                  f"🌐 **Jᴏɪɴ Us** : {join}\n"
-                 f"⌛ **Tɪᴍᴇ Tᴀᴋᴇɴ** : {elapsed_time:.1f} seconds</blockquote>\n\n"
+                 f"⌛ **Tɪᴍᴇ Tᴀᴋᴇɴ** : {elapsed_time:.1f} seconds\n\n"
                  f"❄️ **Dᴀᴛᴇ** : {time_new}")
                  
       #  c_text = (f"**AppName:** {app_name}\n"
@@ -273,8 +273,8 @@ async def appex_v2_txt(app, message, api, name):
            #       f"**Validity Ends On:** {end}\n"
                   #f"Elapsed time: {elapsed_time:.1f} seconds\n"
                 #  f"**Batch Purchase At:** {pricing}")
-        await app.send_document(message.chat.id, filename, caption=caption)
-        await app.send_document(PREMIUM_LOGS, filename, caption = caption)
+        await app.send_document(message.chat.id, filename, caption=caption, parse_mode="html")
+        await app.send_document(PREMIUM_LOGS, filename, caption = caption, parse_mode="html")
         os.remove(filename)
         await message.reply_text("Done✅")
 
