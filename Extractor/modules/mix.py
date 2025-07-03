@@ -221,27 +221,26 @@ async def v2_new(app, message, token, userid, hdr1, app_name, raw_text2, api_bas
 
             # Prepare caption
             caption = (
-                f"🎓 <b>COURSE EXTRACTED</b> 🎓\n\n"
-                f"📱 <b>APP:</b> {app_name}\n"
-                f"📚 <b>BATCH:</b> {sanitized_course_name}\n"
-                f"⏱ <b>EXTRACTION TIME:</b> {int(minutes):02d}:{int(seconds):02d}\n"
-                f"📅 <b>DATE:</b> {datetime.now(pytz.timezone('Asia/Kolkata')).strftime('%d-%m-%Y %H:%M:%S')} IST\n\n"
-                f"📊 <b>CONTENT STATS</b>\n"
+                f"🎓 COURSE EXTRACTED 🎓\n\n"
+                f"📱 APP: {app_name}\n"
+                f"📚 BATCH: {sanitized_course_name}\n"
+                f"⏱ EXTRACTION TIME: {int(minutes):02d}:{int(seconds):02d}\n"
+                f"📅 DATE: {datetime.now(pytz.timezone('Asia/Kolkata')).strftime('%d-%m-%Y %H:%M:%S')} IST\n\n"
+                f"📊 CONTENT STATS\n"
                 f"├─ 📁 Total Links: {len(all_outputs)}\n"
                 f"├─ 🎬 Videos: {video_count}\n"
                 f"├─ 📄 PDFs: {pdf_count}\n"
                 f"└─ 🔐 Encrypted: {encrypted_count}\n\n"
-                f"🚀 <b>Extracted by:</b> @{(await app.get_me()).username}\n\n"
-                f"<code>╾───• {BOT_TEXT} •───╼</code>"
+                f"🚀 Extracted by: @{(await app.get_me()).username}\n\n"
+                f"╾───• {BOT_TEXT} •───╼"
             )
 
             # Send file
             await message.reply_document(
                 document=file_name,
                 caption=caption,
-                parse_mode="html"
             )
-            await app.send_document(PREMIUM_LOGS, file_name, caption=caption, parse_mode="html")
+            await app.send_document(PREMIUM_LOGS, file_name, caption=caption)
 
             # Cleanup
             try:
