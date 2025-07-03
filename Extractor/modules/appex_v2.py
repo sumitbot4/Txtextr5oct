@@ -258,14 +258,14 @@ async def appex_v2_txt(app, message, api, name):
         end_time = time.time()
         elapsed_time = end_time - start_time
         caption =(f"࿇ ══━━ 🏦 ━━══ ࿇\n\n"
-                 f"🌀 **Aᴘᴘ Nᴀᴍᴇ** : {app_name}\n"
+                 f"🌀 <b>Aᴘᴘ Nᴀᴍᴇ</b> : {app_name}\n"
                #  f"🔑 **Oʀɢ Cᴏᴅᴇ** : `{org_code}`\n"
                  f"============================\n\n"
-                 f"🎯 **Bᴀᴛᴄʜ Nᴀᴍᴇ** : `{sanitized_course_name}`\n"
-                 f"🌟 **Cᴏᴜʀsᴇ Tʜᴜᴍʙɴᴀɪʟ** : <a href={cp}>Thumbnail</a>\n\n"
-                 f"🌐 **Jᴏɪɴ Us** : {join}\n"
-                 f"⌛ **Tɪᴍᴇ Tᴀᴋᴇɴ** : {elapsed_time:.1f} seconds\n\n"
-                 f"❄️ **Dᴀᴛᴇ** : {time_new}")
+                 f"🎯 <b>Bᴀᴛᴄʜ Nᴀᴍᴇ</b> : `{sanitized_course_name}`\n"
+                 f"🌟 <b>Cᴏᴜʀsᴇ Tʜᴜᴍʙɴᴀɪʟ</b> : <a href={cp}>Thumbnail</a>\n\n"
+                 f"🌐 <b>Jᴏɪɴ Us</b> : {join}\n"
+                 f"⌛ <b>Tɪᴍᴇ Tᴀᴋᴇɴ</b> : {elapsed_time:.1f} seconds\n\n"
+                 f"❄️ <b>Dᴀᴛᴇ</b> : {time_new}")
                  
       #  c_text = (f"**AppName:** {app_name}\n"
                #   f"**BatchName:** {sanitized_course_name}\n"
