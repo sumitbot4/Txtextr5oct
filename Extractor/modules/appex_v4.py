@@ -423,13 +423,13 @@ async def appex_v5_txt(app, message, api, name):
                 user_id = message.from_user.id
                 mention = f'<a href="tg://user?id={user_id}">{user_id}</a>'
                 caption =(f"࿇ ══━━{mention}━━══ ࿇\n\n"
-                         f"🌀 **Aᴘᴘ Nᴀᴍᴇ** : <b>{app_name}</b>\n"
+                         f"🌀 <b>Aᴘᴘ Nᴀᴍᴇ</b> : <b>{app_name}</b>\n"
                         # f"⚡ **Aᴘɪ** : `{api}`\n"
                          f"============================\n\n"
-                         f"🎯 **Bᴀᴛᴄʜ Nᴀᴍᴇ** : `{raw_text2}_{txtn}`\n\n"
-                         f"🌐 **Jᴏɪɴ Us** : {join}\n"
-                         f"⌛ **Tɪᴍᴇ Tᴀᴋᴇɴ** : {elapsed_time:.1f} seconds\n\n"
-                         f"❄️ **Dᴀᴛᴇ** : {time_new}")
+                         f"🎯 <b>Bᴀᴛᴄʜ Nᴀᴍᴇ</b> : `{raw_text2}_{txtn}`\n\n"
+                         f"🌐 <b>Jᴏɪɴ Us</b> : {join}\n"
+                         f"⌛ <b>Tɪᴍᴇ Tᴀᴋᴇɴ</b> : {elapsed_time:.1f} seconds\n\n"
+                         f"❄️ <b>Dᴀᴛᴇ</b> : {time_new}")
             
              #   c_text = (
                     #f"**APP NAME: <b>{app_name}</b>**\n"
