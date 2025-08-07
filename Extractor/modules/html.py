@@ -63,10 +63,11 @@ def txt_to_html(txt_path, html_path):
             else:
                 links.append(f"<a href='{url}' target='_blank'><div class='video'>{safe_name}</div></a>")
 
+        content = '\n'.join(links) if links else "<p>No content found</p>"
         html_blocks += f"""
-        <div class='tab-content' id='{key}' style='display: none;'>
-            {'\n'.join(links) if links else "<p>No content found</p>"}
-        </div>
+            <div class='tab-content' id='{key}' style='display: none;'>
+               {content}
+            </div>
         """
 
     html_content = f"""<!DOCTYPE html><html><head><meta charset='utf-8'><title>{html.escape(file_name)}</title>
