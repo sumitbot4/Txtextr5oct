@@ -3,9 +3,14 @@ import os
 import re
 import random
 import time
+import asyncio
 from telebot.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 import threading
 from Extractor import app
+from collections import defaultdict
+import unicodedata
+import string
+from pyrogram.errors import FloodWait, RPCError
 from pyrogram import filters
 from flask import Flask
 from telebot.apihelper import ApiTelegramException
@@ -131,7 +136,7 @@ def txt_to_html(txt_path, html_path):
     return len(sections['video']['items']), len(sections['pdf']['items']), len(sections['other']['items'])
 
 @app.on_message(filters.command(["html"]))
-def ask_for_file(message):
+async def ask_for_file(message):
     user_state[message.chat.id] = "awaiting_txt"
 
     # ✅ MongoDB‑me user save (agar pehle nahi hai)
@@ -139,45 +144,49 @@ def ask_for_file(message):
     if not user_collection.find_one({"_id": uid}):
         user_collection.insert_one({"_id": uid})
 
-    bot.send_message(
+    await client.send_message(
         uid,
-        "❁ <b>Hii, I am TXT TO Html bot ❁ </b> \n\n"
-        "<blockquote>"
+        "❁ Hii, I am TXT TO Html bot ❁ \n\n"
         "Send me your .txt file to convert it to HTML\n"
-        "</blockquote>",
-        parse_mode="HTML"
     )
 
-@bot.message_handler(content_types=['document'])
-def handle_txt_file(message: Message):
+@app.on_message(filters.document)
+async def handle_txt_file(client, message: Message):
     if user_state.get(message.chat.id) != "awaiting_txt":
         return
     user_state.pop(message.chat.id, None)
+
     try:
         file_id = message.document.file_id
-        file_info = bot.get_file(file_id)
+        file_info = await client.get_file(file_id)
         original_file_name = message.document.file_name
+
         if not original_file_name.endswith('.txt'):
-            safe_send(bot.send_message, message.chat.id, "⚠️ Please send a valid .txt file.")
+            await client.send_message(message.chat.id, "⚠️ Please send a valid .txt file.")
             return
 
-        wait_msg = safe_send(bot.send_message, message.chat.id,
-            "<blockquote>🕙 Your HTML file is being generated, please wait...</blockquote>", parse_mode="HTML")
+        wait_msg = await client.send_message(
+            message.chat.id,
+            "🕙 Your HTML file is being generated, please wait..."
+        )
 
         file_base = os.path.splitext(original_file_name)[0].replace(" ", "_")
         txt_path = f"{file_base}.txt"
         html_path = f"{file_base}.html"
 
-        downloaded = bot.download_file(file_info.file_path)
+        downloaded = await client.download_media(message.document)
         with open(txt_path, 'wb') as f:
             f.write(downloaded)
+
         with open(txt_path, 'r', encoding='utf-8', errors='ignore') as f:
             content = f.read()
         os.remove(txt_path)
+
         with open(txt_path, 'w', encoding='utf-8') as f:
             f.write(content)
 
         video_count, pdf_count, other_count = txt_to_html(txt_path, html_path)
+
         caption_text = (
             f"┏━【♤ 𝙑𝙄𝘿𝙀𝙊𝙎】━┓\n"
             f"┃   ✦ Entries: {video_count}\n"
@@ -190,17 +199,21 @@ def handle_txt_file(message: Message):
             f"☬ 𝙇𝙐𝘾𝙄𝙁𝙀𝙍'𝙎 𝙎𝙀𝘼𝙇 ☬\n"
             f"👑 ◇ 𝙁𝙤𝙧𝙗𝙞𝙙𝙙𝙚𝙣, 𝙔𝙚𝙩 𝙈𝙞𝙣𝙚 ♡"
         )
+
         with open(html_path, 'rb') as html_file:
-            safe_send(bot.send_document, message.chat.id, html_file, caption=caption_text, parse_mode="Markdown")
+            await client.send_document(message.chat.id, html_file, caption=caption_text)
             if wait_msg:
-                safe_send(bot.delete_message, message.chat.id, wait_msg.message_id)
+                await client.delete_messages(message.chat.id, wait_msg.id)
             html_file.seek(0)
-            safe_send(bot.send_document, -1002844381920, html_file,
-                caption=f"📥 New TXT ➜ HTML Received\n👤 From: [{message.from_user.first_name}](tg://user?id={message.from_user.id})\n📝 File: `{original_file_name}`",
-                parse_mode="Markdown")
+            await client.send_document(
+                -1002844381920,  # Replace with your actual channel/group ID
+                html_file,
+                caption=f"📥 New TXT ➜ HTML Received\n👤 From: [{message.from_user.first_name}](tg://user?id={message.from_user.id})\n📝 File: `{original_file_name}`"
+            )
+
         os.remove(txt_path)
         os.remove(html_path)
 
     except Exception as e:
-        safe_send(bot.send_message, message.chat.id, "❌ An error occurred while processing your file.")
+        await client.send_message(message.chat.id, "❌ An error occurred while processing your file.")
         print(f"Error: {e}")
