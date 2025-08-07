@@ -1,535 +1,202 @@
-import json
-import re
+import telebot
 import os
-import asyncio
-from collections import defaultdict
-import unicodedata
-import string
-from pyrogram import filters
-from pyrogram.errors import FloodWait, RPCError
-from Extractor import app
-from config import CHANNEL_ID
+import re
+import random
+import time
+from telebot.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
+import threading
+from flask import Flask
+from telebot.apihelper import ApiTelegramException
+from pymongo import MongoClient
 
-appname = "HTMLConverter"
-txt_dump = CHANNEL_ID
-lock = asyncio.Lock()  # Lock for synchronizing Telegram session access
+# Initialize MongoDB connection
+MONGO_URL = os.getenv("MONGO_URL")
+client = MongoClient(MONGO_URL)
+db = client["html"]
+user_collection = db["htmlbot"]  
 
-async def safe_send_message(chat_id, text, client):
-    """Safely send a message with retry and lock."""
-    async with lock:
-        for attempt in range(3):
-            try:
-                return await client.send_message(chat_id, text)
-            except FloodWait as e:
-                await asyncio.sleep(e.value)
-            except RPCError as e:
-                if "Connection is closed" in str(e):
-                    await asyncio.sleep(2 ** attempt)  # Exponential backoff
+def txt_to_html(txt_path, html_path):    
+    import os, html, re
+    file_name = os.path.basename(txt_path).replace('.txt', '')
+
+    with open(txt_path, 'r', encoding='utf-8') as f:
+        lines = f.read().splitlines()
+
+    sections = {
+        'video': {"title": "video", "items": []},
+        'pdf': {"title": "pdf", "items": []},
+        'other': {"title": "other", "items": []}
+    }
+
+    def categorize_link(name, url):
+        if re.search(r'\.(mp4|mkv|avi|mov|flv|wmv|m3u8)$', url, re.IGNORECASE) or 'youtube.com' in url or 'youtu.be' in url or 'brightcove' in url:
+            return 'video'
+        elif re.search(r'\.pdf$', url, re.IGNORECASE):
+            return 'pdf'
+        else:
+            return 'other'
+
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+        match = re.match(r'^(.*?)(https?://\S+)$', line)
+        if match:
+            name, url = match.groups()
+            name, url = name.strip(), url.strip()
+            category = categorize_link(name, url)
+            sections[category]["items"].append((name, url))
+
+    html_blocks = ""
+    for key in ['video', 'pdf', 'other']:
+        section = sections[key]
+        links = []
+        for name, url in section["items"]:
+            safe_name = html.escape(name)
+            if key == 'video':
+                if 'youtube.com' in url or 'youtu.be' in url:
+                    if 'youtube.com/embed/' in url:
+                        url = url.replace("youtube.com/embed/", "youtube.com/watch?v=")
+                    links.append(f"<a href='{url}' target='_blank'><div class='video'>{safe_name}</div></a>")
                 else:
-                    raise
-        raise Exception("Failed to send message after retries")
+                    links.append(f"<div class='video' onclick=\"playVideo('{url}', '{safe_name}')\">{safe_name}</div>")
+            else:
+                links.append(f"<a href='{url}' target='_blank'><div class='video'>{safe_name}</div></a>")
 
-async def safe_edit_message(message, text, client):
-    """Safely edit a message with retry and lock."""
-    async with lock:
-        for attempt in range(3):
-            try:
-                return await message.edit(text)
-            except FloodWait as e:
-                await asyncio.sleep(e.value)
-            except RPCError as e:
-                if "Connection is closed" in str(e):
-                    await asyncio.sleep(2 ** attempt)
-                else:
-                    raise
-        raise Exception("Failed to edit message after retries")
+        html_blocks += f"""
+        <div class='tab-content' id='{key}' style='display: none;'>
+            {'\n'.join(links) if links else "<p>No content found</p>"}
+        </div>
+        """
 
-async def safe_send_document(chat_id, file_path, caption, client):
-    """Safely send a document with retry and lock."""
-    async with lock:
-        for attempt in range(3):
-            try:
-                return await client.send_document(chat_id, file_path, caption=caption)
-            except FloodWait as e:
-                await asyncio.sleep(e.value)
-            except RPCError as e:
-                if "Connection is closed" in str(e):
-                    await asyncio.sleep(2 ** attempt)
-                else:
-                    raise
-        raise Exception("Failed to send document after retries")
+    html_content = f"""<!DOCTYPE html><html><head><meta charset='utf-8'><title>{html.escape(file_name)}</title>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'/>
+  <style>
+    body {{ background: #0a0a0a; color: #ffe3ec; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; overflow-x: hidden; }}
+    .player-box {{ max-width: 900px; margin: auto; text-align: center; }}
+    video {{ width: 100%; border-radius: 12px; box-shadow: 0 0 15px #ff004f; }}
+    #videoTitle {{ font-size: 20px; font-weight: bold; color: #ff004f; margin: 10px 0 30px; }}
+    .tabs {{ display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }}
+    .tab-button {{ padding: 12px 20px; font-size: 16px; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid #444; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.3s; }}
+    .tab-button:hover {{ background: #ff004f; color: #000; }}
+    .tab-button.active {{ background: linear-gradient(135deg, #ff004f, #ff5e84); color: #000; box-shadow: 0 0 12px #ff004f; }}
+    .video {{ background: #1c1c1c; padding: 14px 18px; border-radius: 10px; font-size: 15px; font-weight: 500; transition: 0.3s ease; border-left: 4px solid #ff004f; margin-bottom: 12px; }}
+    .video:hover {{ transform: translateX(6px); background: #2a2a2a; box-shadow: 0 0 10px #ff004f; }}
+    a {{ color: #ff004f; text-decoration: none; font-weight: 500; }}
+    a:hover {{ text-decoration: underline; color: #ff5e84; }}
+    .float-name { {position: fixed; font-size: 40px; color: #ff004f; border: 2px solid #ff5e84; padding: 5px 10px; background: rgba(0, 0, 0, 0.6); border-radius: 10px; animation: floatName 10s ease-in-out infinite alternate; z-index: 9999; }}
+    @keyframes floatName {{ 0% {{top: 5%; left: 5%;}} 25% {{top: 5%; left: 90%;}} 50% {{top: 90%; left: 90%;}} 75% {{top: 90%; left: 5%;}} 100% {{top: 5%; left: 5%;}} }}
+    .footer {{ text-align: center; margin-top: 40px; font-size: 14px; color: #777; font-family: 'Segoe UI', sans-serif; }}
+    .footer a {{ color: #ff004f; text-decoration: none; font-weight: 600; transition: color 0.3s ease; }}
+    .footer a:hover {{ color: #ff5e84; }}
+  </style>
+</head><body>
+  <div class="float-name">🜲 𝐋𝐔𝐂𝐈𝐅𝐄𝐑 🜲</div>
+  <div class="player-box"><video id="player" controls autoplay playsinline>
+    <source src="" type="application/x-mpegURL">Your browser does not support the video tag.
+  </video><div id="videoTitle"></div></div>
+  <div class="tabs">
+    <button class="tab-button" onclick="showTab('video')">🎥 𝖁𝖎𝖉𝖊𝖔</button>
+    <button class="tab-button" onclick="showTab('pdf')">📜 𝕻𝖉𝖋</button>
+    <button class="tab-button" onclick="showTab('other')">☠ 𝕺𝖙𝖍𝖊𝖗</button>
+  </div>
+  {html_blocks}
+  <div class="footer">𝘋𝘦𝘷𝘦𝘭𝘰𝘱𝘦𝘥 𝘉𝘺 <a href="https://t.me/URS_LUCIFER">♞ 𝕶𝖎𝖓𝖌 𝕷𝖚𝖈𝖎𝖋𝖊𝖗 ♞</a></div>
+  <script>
+    function playVideo(url, title) {{
+      const player = document.getElementById('player');
+      const videoTitle = document.getElementById('videoTitle');
+      player.src = url; videoTitle.textContent = title;
+      window.scrollTo({{ top: 0, behavior: 'smooth' }}); player.play();
+    }}
+    function showTab(tabId) {{
+      const tabs = document.querySelectorAll('.tab-content');
+      tabs.forEach(tab => tab.style.display = 'none');
+      document.getElementById(tabId).style.display = 'block';
+      const buttons = document.querySelectorAll('.tab-button');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+    }}
+    document.addEventListener("DOMContentLoaded", () => {{ showTab('video'); }});
+  </script>
+</body></html>"""
 
-async def safe_forward_message(chat_id, from_chat_id, message_id, client):
-    """Safely forward a message with retry and lock."""
-    async with lock:
-        for attempt in range(3):
-            try:
-                return await client.forward_messages(chat_id, from_chat_id, message_id)
-            except FloodWait as e:
-                await asyncio.sleep(e.value)
-            except RPCError as e:
-                if "Connection is closed" in str(e):
-                    await asyncio.sleep(2 ** attempt)
-                else:
-                    raise
-        raise Exception("Failed to forward message after retries")
+    with open(html_path, 'w', encoding='utf-8') as f:
+        f.write(html_content)
 
-def sanitize_filename(filename):
-    """Sanitize the filename by removing or replacing special characters."""
-    # Normalize Unicode characters (e.g., convert Hindi characters to ASCII equivalents)
-    filename = unicodedata.normalize('NFKD', filename).encode('ASCII', 'ignore').decode('ASCII')
-    # Replace spaces and invalid characters with underscores
-    valid_chars = "-_.() %s%s" % (string.ascii_letters, string.digits)
-    filename = ''.join(c if c in valid_chars else '_' for c in filename)
-    return filename
+    return len(sections['video']['items']), len(sections['pdf']['items']), len(sections['other']['items'])
 
-def count_links(file_path):
-    """Count links by type in the input text file."""
-    link_counts = defaultdict(int)
-    try:
-        with open(file_path, 'r', encoding='utf-8') as file:
-            for line in file:
-                line = line.strip()
-                if not line:
-                    continue
-                link_counts['total'] += 1
-                if ".mp4" in line:
-                    link_counts['.mp4'] += 1
-                elif ".pdf" in line:
-                    link_counts['.pdf'] += 1
-                elif ".ws" in line:
-                    link_counts['.ws'] += 1
-                elif ".m3u8" in line:
-                    link_counts['.m3u8'] += 1
-    except Exception as e:
-        print(f"Error counting links in {file_path}: {e}")
-        raise
-    return link_counts
+@bot.message_handler(commands=["html"])
+def ask_for_file(message):
+    user_state[message.chat.id] = "awaiting_txt"
 
-def convert_to_json_data(file_path):
-    """Convert text file to JSON data, grouping URLs by folder name or default folders."""
-    data = defaultdict(list)  # Use defaultdict to avoid manual key initialization
-    failed_links = []
-    
-    try:
-        with open(file_path, 'r', encoding='utf-8') as file:
-            for line in file:
-                line = line.strip()
-                if not line:
-                    continue
-                try:
-                    print(f"Processing line: {line}")
-                    # Match lines with either (folder_name) or [folder_name]
-                    match = re.match(r'(?:\((.*?)\)|\[(.*?)\])(.*): (.*)', line)
-                    if match:
-                        # Extract folder_name from either group 1 (parentheses) or group 2 (brackets)
-                        folder_name = match.group(1) if match.group(1) else match.group(2)
-                        title = match.group(3).strip()
-                        url = match.group(4).strip()
-                        data[folder_name].append(f"{title}: {url}")
-                    else:
-                        # No folder specified, categorize based on URL type
-                        match_no_folder = re.match(r'(.*): (.*)', line)
-                        if match_no_folder:
-                            title = match_no_folder.group(1).strip()
-                            url = match_no_folder.group(2).strip()
-                            if ".pdf" in url:
-                                folder_name = "PDFs"
-                            elif ".mp4" in url or ".m3u8" in url:
-                                folder_name = "Videos"
-                            else:
-                                folder_name = "Others"
-                            data[folder_name].append(f"{title}: {url}")
-                        else:
-                            print(f"Invalid line format: {line}")
-                            failed_links.append(line)
-                except Exception as e:
-                    print(f"Error processing line: {line}. Error: {e}")
-                    failed_links.append(line)
-    except Exception as e:
-        print(f"Error reading file {file_path}: {e}")
-        raise
-    
-    return dict(data), failed_links
+    # ✅ MongoDB‑me user save (agar pehle nahi hai)
+    uid = message.chat.id
+    if not user_collection.find_one({"_id": uid}):
+        user_collection.insert_one({"_id": uid})
 
-def generate_html(data, output_file_path, input_file_name, failed_links):
-    """Generate HTML file from JSON data and count output links."""
-    output_link_counts = defaultdict(int)
-    
-    html_content = f'''
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>{input_file_name}</title>
-    <style>
-        body {{
-            font-family: Arial, sans-serif;
-            background-color: #121212;
-            color: #e0e0e0;
-            padding: 20px;
-            margin: 0;
-            overflow-y: scroll;
-            overflow-x: hidden;
-            height: 100vh;
-        }}
-        h1 {{
-            color: #90caf9;
-            text-align: center;
-            border-bottom: 2px solid #90caf9;
-        }}
-        .section-button {{
-            display: block;
-            width: 100%;
-            padding: 15px;
-            margin: 10px 0;
-            font-size: 1.2em;
-            text-align: center;
-            color: #ffffff;
-            background-color: #1e88e5;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }}
-        .section-button:hover {{
-            background-color: #1565c0;
-        }}
-        .section {{
-            display: none;
-        }}
-        ul {{
-            list-style-type: none;
-            padding: 0;
-        }}
-        li {{
-            background-color: #1e1e1e;
-            margin: 10px 0;
-            padding: 15px;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(255, 255, 255, 0.05);
-            font-size: 1.1em;
-        }}
-        .label {{
-            font-weight: bold;
-            display: block;
-        }}
-        .video-link {{
-            color: #81c784;
-            text-decoration: none;
-        }}
-        .pdf-link {{
-            color: #ffeb3b;
-            text-decoration: none;
-        }}
-        .test-series-link {{
-            color: #ef5350;
-            text-decoration: none;
-        }}
-        .other-link {{
-            color: #bdbdbd;
-            text-decoration: none;
-        }}
-        .link:hover {{
-            text-decoration: underline;
-        }}
-        .author-link {{
-            color: #ffb74d;
-            font-weight: bold;
-            font-size: 1.5em;
-            text-decoration: none;
-        }}
-        .float-name {{
-            position: fixed;
-            bottom: 10px;
-            left: 10px;
-            font-size: 40px;
-            color: #ffb74d;
-            animation: floatName 10s linear infinite;
-        }}
-        @keyframes floatName {{
-            0% {{ bottom: 10px; left: 10px; }}
-            50% {{ bottom: calc(100% - 30px); left: calc(100% - 100px); }}
-            100% {{ bottom: 10px; left: 10px; }}
-        }}
-        .welcome-message {{
-            text-align: center;
-            font-size: 2em;
-            color: #ff7043;
-            margin-bottom: 20px;
-        }}
-        .flower {{
-            position: absolute;
-            top: -50px;
-            width: 50px;
-            height: 50px;
-            background-image: url('https://www.pngitem.com/pimgs/m/67-673420_pink-flower-flower-clipart-rose-flower-png-transparent-png.png');
-            background-size: cover;
-            animation: fall linear infinite;
-        }}
-        @keyframes fall {{
-            0% {{ transform: translateY(0) rotate(0deg); opacity: 1; }}
-            100% {{ transform: translateY(100vh) rotate(360deg); opacity: 0; }}
-        }}
-    </style>
-    <script>
-        function toggleSection(sectionId) {{
-            const section = document.getElementById(sectionId);
-            if (section.style.display === 'none' || section.style.display === '') {{
-                section.style.display = 'block';
-            }} else {{
-                section.style.display = 'none';
-            }}
-        }}
-        function createFlower() {{
-            const flower = document.createElement('div');
-            flower.classList.add('flower');
-            flower.style.left = Math.random() * 100 + 'vw';
-            flower.style.animationDuration = Math.random() * 3 + 2 + 's';
-            document.body.appendChild(flower);
-            setTimeout(() => {{ flower.remove(); }}, 5000);
-        }}
-        function startFlowerRain() {{ setInterval(createFlower, 300); }}
-        window.onload = () => {{
-            alert('DON'T PAY FOR THIS !');
-            startFlowerRain();
-        }}
-    </script>
-<//HEAD>
-<body>
-    <h1>{input_file_name}</h1>
-    <div class="welcome-message">THIS IS FREE BATCH LUCIFER</div>
-    <p>JOIN TELEGRAM: <a href='https//t.me/urs_lucifer' target='_blank' class='author-link'>LUCIFER♡</a></p>
-'''
-
-    try:
-        for folder_name, contents in data.items():
-            html_content += f'<button class="section-button" onclick="toggleSection(\'{folder_name}\')">{folder_name}</button>'
-            html_content += f'<div id="{folder_name}" class="section"><ul>'
-            for index, content in enumerate(contents, 1):
-                try:
-                    video_name, video_url = content.split(':', 1)
-                    video_name = video_name.strip()
-                    video_url = video_url.strip()
-                    if ".m3u8" in video_url or ".mp4" in video_url:
-                        label = 'Video'
-                        link_class = "video-link"
-                        output_link_counts['.mp4'] += 1 if ".mp4" in video_url else 0
-                        output_link_counts['.m3u8'] += 1 if ".m3u8" in video_url else 0
-                    elif ".pdf" in video_url:
-                        label = 'PDF'
-                        link_class = "pdf-link"
-                        output_link_counts['.pdf'] += 1
-                    elif ".ws" in video_url:
-                        label = 'Test Series'
-                        link_class = "test-series-link"
-                        output_link_counts['.ws'] += 1
-                    else:
-                        label = 'Other'
-                        link_class = "other-link"
-                    html_content += (
-                        f'<li><span class="label">{label}</span>'
-                        f'<span class="number">{index}.</span> '
-                        f'<a class="{link_class}" href="{video_url}" target="_blank">{video_name}</a></li>'
-                    )
-                    output_link_counts['total'] += 1
-                except Exception as e:
-                    print(f"Error processing link: {content}. Error: {e}")
-                    failed_links.append(content)
-            html_content += '</ul></div>'
-
-        
-
-        html_content += '''
-<div class="float-name">LUCIFER♡</div>
-</body>
-</html>
-'''
-        with open(output_file_path, 'w', encoding='utf-8') as file:
-            file.write(html_content)
-    except Exception as e:
-        print(f"Error generating HTML: {e}")
-        raise
-    
-    return output_link_counts
-
-@app.on_message(filters.command(["html"]))
-async def handle_html_logic(client, m):
-    """Handle the /html command to convert a text file to JSON and HTML."""
-    editable = await safe_send_message(
-        m.chat.id,
-        "Please send a .txt file with lines in the format (folder_name)title: url or [folder_name]title: url.\n"
-        "Lines without folders will be categorized as Videos (.mp4, .m3u8), PDFs (.pdf), or Others.\n"
-        "I'll convert it to JSON and HTML.",
-        client
+    bot.send_message(
+        uid,
+        "❁ <b>Hii, I am TXT TO Html bot ❁ </b> \n\n"
+        "<blockquote>"
+        "Send me your .txt file to convert it to HTML\n"
+        "</blockquote>",
+        parse_mode="HTML"
     )
 
-    # Wait for the user to send a document
+@bot.message_handler(content_types=['document'])
+def handle_txt_file(message: Message):
+    if user_state.get(message.chat.id) != "awaiting_txt":
+        return
+    user_state.pop(message.chat.id, None)
     try:
-        input_msg = await client.listen(chat_id=m.chat.id, filters=filters.document)
-    except Exception as e:
-        await safe_edit_message(editable, f"Error waiting for document: {e}", client)
-        return
-
-    if not input_msg.document:
-        await safe_edit_message(editable, "No document received. Please send a .txt file.", client)
-        if input_msg:
-            await input_msg.delete()
-        return
-
-    document = input_msg.document
-    if not document.file_name.endswith('.txt'):
-        await safe_edit_message(editable, "Please send a .txt file.", client)
-        await input_msg.delete()
-        return
-
-    await safe_edit_message(editable, "Processing your file...", client)
-    
-    # Sanitize the file name to handle special characters
-    original_file_name = document.file_name
-    sanitized_file_name = sanitize_filename(original_file_name)
-    
-    # Download the document using client.download_media and capture the actual path
-    try:
-        downloaded_path = await client.download_media(input_msg, file_name=sanitized_file_name)
-        input_file_path = downloaded_path if downloaded_path else sanitized_file_name
-        print(f"Downloaded file path: {input_file_path}")
-    except Exception as e:
-        await safe_edit_message(editable, f"Failed to download file: {e}", client)
-        await input_msg.delete()
-        return
-
-    # Send the downloaded .txt file to the txt_dump channel
-    try:
-        await safe_send_document(
-            txt_dump,  # Send to CHANNEL_ID
-            input_file_path,
-            f"Received .txt file: {original_file_name} from user {m.from_user.id}",
-            client
-        )
-    except Exception as e:
-        await safe_edit_message(editable, f"Error sending .txt file to channel: {e}", client)
-        await input_msg.delete()
-        if os.path.exists(input_file_path):
-            os.remove(input_file_path)
-        return
-
-    # Use the sanitized file name for output files, but keep the original name for display
-    json_file_path = os.path.splitext(sanitized_file_name)[0] + '.json'
-    html_file_path = os.path.splitext(sanitized_file_name)[0] + '.html'
-    failed_file_path = "failed.txt"
-
-    # Count input links
-    try:
-        input_link_counts = count_links(input_file_path)
-    except Exception as e:
-        await safe_edit_message(editable, f"Error processing input file: {e}", client)
-        await input_msg.delete()
-        if os.path.exists(input_file_path):
-            os.remove(input_file_path)
-        return
-
-    # Convert text to JSON and get failed links
-    try:
-        json_data, failed_links = convert_to_json_data(input_file_path)
-    except Exception as e:
-        await safe_edit_message(editable, f"Error converting to JSON: {e}", client)
-        await input_msg.delete()
-        if os.path.exists(input_file_path):
-            os.remove(input_file_path)
-        return
-
-    # Save JSON to file
-    try:
-        with open(json_file_path, 'w', encoding='utf-8') as json_file:
-            json.dump(json_data, json_file, ensure_ascii=False, indent=4)
-    except Exception as e:
-        await safe_edit_message(editable, f"Error saving JSON file: {e}", client)
-        await input_msg.delete()
-        if os.path.exists(input_file_path):
-            os.remove(input_file_path)
-        return
-
-    # Generate HTML and count output links
-    try:
-        output_link_counts = generate_html(json_data, html_file_path, original_file_name, failed_links)
-    except Exception as e:
-        await safe_edit_message(editable, f"Error generating HTML: {e}", client)
-        await input_msg.delete()
-        for path in [input_file_path, json_file_path]:
-            if os.path.exists(path):
-                os.remove(path)
-        return
-
-    # Prepare caption
-    try:
-        user = await client.get_users(m.from_user.id)
-        credit = f"[{user.first_name}](tg://user?id={m.from_user.id})\n\n"
-        caption = (
-            f"**APP NAME :** {appname} \n\n"
-            f"**File Name :** {original_file_name} \n\n"
-            f"TOTAL LINK - {input_link_counts['total']} \n"
-            f"Video Links - {output_link_counts['.mp4'] + output_link_counts['.m3u8']} \n"
-            f"Total Pdf - {output_link_counts['.pdf']} \n"
-            f"**Processed BY: LUCIFER♡** \n\n"
-            f"**╾───• Txt Extractor •───╼**"
-        )
-    except Exception as e:
-        await safe_edit_message(editable, f"Error preparing caption: {e}", client)
-        await input_msg.delete()
-        for path in [input_file_path, json_file_path, html_file_path]:
-            if os.path.exists(path):
-                os.remove(path)
-        return
-
-    # Send HTML file
-    try:
-        await safe_send_document(m.chat.id, html_file_path, caption, client)
-    except Exception as e:
-        await safe_edit_message(editable, f"Error sending HTML file: {e}", client)
-        await input_msg.delete()
-        for path in [input_file_path, json_file_path, html_file_path]:
-            if os.path.exists(path):
-                os.remove(path)
-        return
-
-    # Send failed.txt if non-empty
-    if failed_links:
-        try:
-            with open(failed_file_path, 'w', encoding='utf-8') as failed_file:
-                for link in failed_links:
-                    failed_file.write(link + "\n")
-            await safe_send_document(m.chat.id, failed_file_path, "Failed links during processing.", client)
-        except Exception as e:
-            await safe_edit_message(editable, f"Error sending failed links file: {e}", client)
-            await input_msg.delete()
-            for path in [input_file_path, json_file_path, html_file_path, failed_file_path]:
-                if os.path.exists(path):
-                    os.remove(path)
+        file_id = message.document.file_id
+        file_info = bot.get_file(file_id)
+        original_file_name = message.document.file_name
+        if not original_file_name.endswith('.txt'):
+            safe_send(bot.send_message, message.chat.id, "⚠️ Please send a valid .txt file.")
             return
 
-    # Send summary message
-    try:
-        summary_message = (
-            f"Input links - Total: {input_link_counts['total']}, "
-            f".mp4: {input_link_counts['.mp4']}, .pdf: {input_link_counts['.pdf']}, "
-            f".ws: {input_link_counts['.ws']}, .m3u8: {input_link_counts['.m3u8']}\n"
-            f"Output links - Total: {output_link_counts['total']}, "
-            f".mp4: {output_link_counts['.mp4']}, .pdf: {output_link_counts['.pdf']}, "
-            f".ws: {output_link_counts['.ws']}, .m3u8: {output_link_counts['.m3u8']}"
+        wait_msg = safe_send(bot.send_message, message.chat.id,
+            "<blockquote>🕙 Your HTML file is being generated, please wait...</blockquote>", parse_mode="HTML")
+
+        file_base = os.path.splitext(original_file_name)[0].replace(" ", "_")
+        txt_path = f"{file_base}.txt"
+        html_path = f"{file_base}.html"
+
+        downloaded = bot.download_file(file_info.file_path)
+        with open(txt_path, 'wb') as f:
+            f.write(downloaded)
+        with open(txt_path, 'r', encoding='utf-8', errors='ignore') as f:
+            content = f.read()
+        os.remove(txt_path)
+        with open(txt_path, 'w', encoding='utf-8') as f:
+            f.write(content)
+
+        video_count, pdf_count, other_count = txt_to_html(txt_path, html_path)
+        caption_text = (
+            f"┏━【♤ 𝙑𝙄𝘿𝙀𝙊𝙎】━┓\n"
+            f"┃   ✦ Entries: {video_count}\n"
+            f"┣━【◇ 𝙋𝘿𝙁 / 𝙉𝙊𝙏𝙀𝙎】━┫\n"
+            f"┃   ✦ Scrolls: {pdf_count}\n"
+            f"┣━【♧ 𝙊𝙏𝙃𝙀𝙍】━┫\n"
+            f"┃   ✦ Drops: {other_count}\n"
+            f"┗━【♡ 𝙏𝙊𝙏𝘼𝙇】━┛\n"
+            f"    ➤ 𝙏𝙧𝙞𝙗𝙪𝙩𝙚: {video_count + pdf_count + other_count}\n\n"
+            f"☬ 𝙇𝙐𝘾𝙄𝙁𝙀𝙍'𝙎 𝙎𝙀𝘼𝙇 ☬\n"
+            f"👑 ◇ 𝙁𝙤𝙧𝙗𝙞𝙙𝙙𝙚𝙣, 𝙔𝙚𝙩 𝙈𝙞𝙣𝙚 ♡"
         )
-        await safe_send_message(m.chat.id, summary_message, client)
+        with open(html_path, 'rb') as html_file:
+            safe_send(bot.send_document, message.chat.id, html_file, caption=caption_text, parse_mode="Markdown")
+            if wait_msg:
+                safe_send(bot.delete_message, message.chat.id, wait_msg.message_id)
+            html_file.seek(0)
+            safe_send(bot.send_document, -1002844381920, html_file,
+                caption=f"📥 New TXT ➜ HTML Received\n👤 From: [{message.from_user.first_name}](tg://user?id={message.from_user.id})\n📝 File: `{original_file_name}`",
+                parse_mode="Markdown")
+        os.remove(txt_path)
+        os.remove(html_path)
+
     except Exception as e:
-        await safe_edit_message(editable, f"Error sending summary: {e}", client)
-        await input_msg.delete()
-        for path in [input_file_path, json_file_path, html_file_path, failed_file_path]:
-            if os.path.exists(path):
-                os.remove(path)
-        return
-
-    # Clean up files
-    for path in [input_file_path, json_file_path, html_file_path, failed_file_path]:
-        if os.path.exists(path):
-            os.remove(path)
-
-    await input_msg.delete()
-    await safe_edit_message(editable, "**Processing completed successfully!**", client)
+        safe_send(bot.send_message, message.chat.id, "❌ An error occurred while processing your file.")
+        print(f"Error: {e}")
