@@ -85,7 +85,7 @@ def txt_to_html(txt_path, html_path):
     .video:hover {{ transform: translateX(6px); background: #2a2a2a; box-shadow: 0 0 10px #ff004f; }}
     a {{ color: #ff004f; text-decoration: none; font-weight: 500; }}
     a:hover {{ text-decoration: underline; color: #ff5e84; }}
-    .float-name { {position: fixed; font-size: 40px; color: #ff004f; border: 2px solid #ff5e84; padding: 5px 10px; background: rgba(0, 0, 0, 0.6); border-radius: 10px; animation: floatName 10s ease-in-out infinite alternate; z-index: 9999; }}
+    .float-name {{position: fixed; font-size: 40px; color: #ff004f; border: 2px solid #ff5e84; padding: 5px 10px; background: rgba(0, 0, 0, 0.6); border-radius: 10px; animation: floatName 10s ease-in-out infinite alternate; z-index: 9999; }}
     @keyframes floatName {{ 0% {{top: 5%; left: 5%;}} 25% {{top: 5%; left: 90%;}} 50% {{top: 90%; left: 90%;}} 75% {{top: 90%; left: 5%;}} 100% {{top: 5%; left: 5%;}} }}
     .footer {{ text-align: center; margin-top: 40px; font-size: 14px; color: #777; font-family: 'Segoe UI', sans-serif; }}
     .footer a {{ color: #ff004f; text-decoration: none; font-weight: 600; transition: color 0.3s ease; }}
