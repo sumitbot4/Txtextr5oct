@@ -180,7 +180,7 @@ async def handle_txt_file(client, message: Message):
 
         with open(txt_path, 'r', encoding='utf-8', errors='ignore') as f:
             content = f.read()
-        os.remove(txt_path)
+        #os.remove(txt_path)
 
         with open(txt_path, 'w', encoding='utf-8') as f:
             f.write(content)
