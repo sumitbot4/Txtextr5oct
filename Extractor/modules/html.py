@@ -127,7 +127,7 @@ def txt_to_html(txt_path, html_path):
 
     return len(sections['video']['items']), len(sections['pdf']['items']), len(sections['other']['items'])
 
-@bot.message_handler(commands=["html"])
+@app.on_message(filters.command(["html"]))
 def ask_for_file(message):
     user_state[message.chat.id] = "awaiting_txt"
 
