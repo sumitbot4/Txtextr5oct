@@ -11,7 +11,7 @@ from collections import defaultdict
 import unicodedata
 import string
 from pyrogram.errors import FloodWait, RPCError
-from pyrogram import filters
+from pyrogram import filters, Client
 from flask import Flask
 from telebot.apihelper import ApiTelegramException
 from pymongo import MongoClient
@@ -136,7 +136,7 @@ def txt_to_html(txt_path, html_path):
     return len(sections['video']['items']), len(sections['pdf']['items']), len(sections['other']['items'])
 
 @app.on_message(filters.command(["html"]))
-async def ask_for_file(message):
+async def ask_for_file(client, message):
     user_state[message.chat.id] = "awaiting_txt"
 
     # ✅ MongoDB‑me user save (agar pehle nahi hai)
