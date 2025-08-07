@@ -6,6 +6,7 @@ import time
 from telebot.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 import threading
 from Extractor import app
+from pyrogram import filters
 from flask import Flask
 from telebot.apihelper import ApiTelegramException
 from pymongo import MongoClient
