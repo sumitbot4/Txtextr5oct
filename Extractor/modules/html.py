@@ -5,6 +5,7 @@ import random
 import time
 from telebot.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 import threading
+from Extractor import app
 from flask import Flask
 from telebot.apihelper import ApiTelegramException
 from pymongo import MongoClient
@@ -13,7 +14,8 @@ from pymongo import MongoClient
 MONGO_URL = os.getenv("MONGO_URL")
 client = MongoClient(MONGO_URL)
 db = client["html"]
-user_collection = db["htmlbot"]  
+user_collection = db["htmlbot"]
+appname = "HTMLConverter"
 
 def txt_to_html(txt_path, html_path):    
     import os, html, re
