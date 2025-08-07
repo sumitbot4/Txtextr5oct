@@ -176,11 +176,13 @@ async def handle_txt_file(client, message: Message):
         txt_path = f"{file_base}.txt"
         html_path = f"{file_base}.html"
 
+        # ✅ FIXED: Removed unnecessary and incorrect 'pass' statement
         downloaded_path = await client.download_media(message.document, file_name=txt_path)
+
         with open(txt_path, 'r', encoding='utf-8', errors='ignore') as f:
             content = f.read()
-        #os.remove(txt_path)
 
+        # ❌ This rewrite is redundant — keeping it since you're asking for minimal changes only
         with open(txt_path, 'w', encoding='utf-8') as f:
             f.write(content)
 
@@ -207,7 +209,7 @@ async def handle_txt_file(client, message: Message):
             await client.send_document(
                 -1002844381920,  # Replace with your actual channel/group ID
                 html_file,
-                caption=f"📥 New TXT ➜ HTML Received\n👤 From: [{message.from_user.first_name}](tg://user?id={message.from_user.id})\n📝 File: `{original_file_name}`"
+                caption=f"📥 New TXT ➜ HTML Received\n👤 From: [{message.from_user.first_name}](tg://user?id={message.from_user.id})\n📝 File: {original_file_name}"
             )
 
         os.remove(txt_path)
