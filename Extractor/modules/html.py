@@ -247,9 +247,9 @@ def generate_html(data, output_file_path, input_file_name, failed_links):
         animation: floatName 10s linear infinite;
     }
     @keyframes floatName {
-        0% { bottom: 10px; left: 10px; }
-        50% { bottom: calc(100% - 30px); left: calc(100% - 100px); }
-        100% { bottom: 10px; left: 10px; }
+        0%% { bottom: 10px; left: 10px; }
+        50%% { bottom: calc(100% - 30px); left: calc(100% - 100px); }
+        100%% { bottom: 10px; left: 10px; }
     }
     .welcome-message {
         text-align: center;
@@ -267,8 +267,8 @@ def generate_html(data, output_file_path, input_file_name, failed_links):
         animation: fall linear infinite;
     }
     @keyframes fall {
-        0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-        100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        0%% { transform: translateY(0) rotate(0deg); opacity: 1; }
+        100%% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
     }
 </style>
     <script>
