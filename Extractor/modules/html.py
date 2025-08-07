@@ -470,8 +470,8 @@ async def handle_html_logic(client, m):
             f"TOTAL LINK - {input_link_counts['total']} \n"
             f"Video Links - {output_link_counts['.mp4'] + output_link_counts['.m3u8']} \n"
             f"Total Pdf - {output_link_counts['.pdf']} \n"
-            f"**Processed BY: {LUCIFER}** \n\n"
-            f"**╾───• Txtx Extractor •───╼**"
+            f"**Processed BY: LUCIFER♡** \n\n"
+            f"**╾───• Txt Extractor •───╼**"
         )
     except Exception as e:
         await safe_edit_message(editable, f"Error preparing caption: {e}", client)
