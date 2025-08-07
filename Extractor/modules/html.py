@@ -176,8 +176,8 @@ async def handle_txt_file(client, message: Message):
         txt_path = f"{file_base}.txt"
         html_path = f"{file_base}.html"
 
-        await client.download_media(message.document, file_name=txt_path)
-
+        async for _ in client.download_media(message.document, file_name=txt_path):
+            pass
         with open(txt_path, 'r', encoding='utf-8', errors='ignore') as f:
             content = f.read()
         #os.remove(txt_path)
