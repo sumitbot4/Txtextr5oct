@@ -163,101 +163,114 @@ def generate_html(data, output_file_path, input_file_name, failed_links):
     <meta charset="UTF-8">
     <title>{input_file_name}</title>
     <style>
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #121212;
-        color: #e0e0e0;
-        padding: 20px;
-        margin: 0;
-        overflow-y: scroll;
-        overflow-x: hidden;
-        height: 100vh;
-    }
-    h1 {
-        color: #90caf9;
-        text-align: center;
-        border-bottom: 2px solid #90caf9;
-    }
-    .section-button {
-        display: block;
-        width: 100%;
-        padding: 15px;
-        margin: 10px 0;
-        font-size: 1.2em;
-        text-align: center;
-        color: #ffffff;
-        background-color: #1e88e5;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-    }
-    .section-button:hover {
-        background-color: #1565c0;
-    }
-    .section {
-        display: none;
-    }
-    ul {
-        list-style-type: none;
-        padding: 0;
-    }
-    li {
-        background-color: #1e1e1e;
-        margin: 10px 0;
-        padding: 15px;
-        border-radius: 5px;
-        box-shadow: 0 2px 10px rgba(255, 255, 255, 0.05);
-        font-size: 1.1em;
-    }
-    .label {
-        font-weight: bold;
-        display: block;
-    }
-    .video-link {
-        color: #81c784;
-        text-decoration: none;
-    }
-    .pdf-link {
-        color: #ffeb3b;
-        text-decoration: none;
-    }
-    .test-series-link {
-        color: #ef5350;
-        text-decoration: none;
-    }
-    .other-link {
-        color: #bdbdbd;
-        text-decoration: none;
-    }
-    .link:hover {
-        text-decoration: underline;
-    }
-    .author-link {
-        color: #ffb74d;
-        font-weight: bold;
-        font-size: 1.5em;
-        text-decoration: none;
-    }
-    .welcome-message {
-        text-align: center;
-        font-size: 2em;
-        color: #ff7043;
-        margin-bottom: 20px;
-    }
-    .flower {
-        position: absolute;
-        top: -50px;
-        width: 50px;
-        height: 50px;
-        background-image: url('https://www.pngitem.com/pimgs/m/67-673420_pink-flower-flower-clipart-rose-flower-png-transparent-png.png');
-        background-size: cover;
-        animation: fall linear infinite;
-    }
-    @keyframes fall {
-        0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-        100%% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
-    }
-</style>
+        body {{
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            padding: 20px;
+            margin: 0;
+            overflow-y: scroll;
+            overflow-x: hidden;
+            height: 100vh;
+        }}
+        h1 {{
+            color: #90caf9;
+            text-align: center;
+            border-bottom: 2px solid #90caf9;
+        }}
+        .section-button {{
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            font-size: 1.2em;
+            text-align: center;
+            color: #ffffff;
+            background-color: #1e88e5;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }}
+        .section-button:hover {{
+            background-color: #1565c0;
+        }}
+        .section {{
+            display: none;
+        }}
+        ul {{
+            list-style-type: none;
+            padding: 0;
+        }}
+        li {{
+            background-color: #1e1e1e;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(255, 255, 255, 0.05);
+            font-size: 1.1em;
+        }}
+        .label {{
+            font-weight: bold;
+            display: block;
+        }}
+        .video-link {{
+            color: #81c784;
+            text-decoration: none;
+        }}
+        .pdf-link {{
+            color: #ffeb3b;
+            text-decoration: none;
+        }}
+        .test-series-link {{
+            color: #ef5350;
+            text-decoration: none;
+        }}
+        .other-link {{
+            color: #bdbdbd;
+            text-decoration: none;
+        }}
+        .link:hover {{
+            text-decoration: underline;
+        }}
+        .author-link {{
+            color: #ffb74d;
+            font-weight: bold;
+            font-size: 1.5em;
+            text-decoration: none;
+        }}
+        .float-name {{
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            font-size: 40px;
+            color: #ffb74d;
+            animation: floatName 10s linear infinite;
+        }}
+        @keyframes floatName {{
+            0% {{ bottom: 10px; left: 10px; }}
+            50% {{ bottom: calc(100% - 30px); left: calc(100% - 100px); }}
+            100% {{ bottom: 10px; left: 10px; }}
+        }}
+        .welcome-message {{
+            text-align: center;
+            font-size: 2em;
+            color: #ff7043;
+            margin-bottom: 20px;
+        }}
+        .flower {{
+            position: absolute;
+            top: -50px;
+            width: 50px;
+            height: 50px;
+            background-image: url('https://www.pngitem.com/pimgs/m/67-673420_pink-flower-flower-clipart-rose-flower-png-transparent-png.png');
+            background-size: cover;
+            animation: fall linear infinite;
+        }}
+        @keyframes fall {{
+            0% {{ transform: translateY(0) rotate(0deg); opacity: 1; }}
+            100% {{ transform: translateY(100vh) rotate(360deg); opacity: 0; }}
+        }}
+    </style>
     <script>
         function toggleSection(sectionId) {{
             const section = document.getElementById(sectionId);
@@ -277,15 +290,15 @@ def generate_html(data, output_file_path, input_file_name, failed_links):
         }}
         function startFlowerRain() {{ setInterval(createFlower, 300); }}
         window.onload = () => {{
-            alert('THIS IS FREE BATCH FROM LUCIFER !');
+            alert('DON'T PAY FOR THIS !');
             startFlowerRain();
         }}
     </script>
-</HEAD>
+<//HEAD>
 <body>
     <h1>{input_file_name}</h1>
-    <div class="welcome-message">THIS IS FREE BATCH FROM LUCIFER !</div>
-    <p>JOIN TELEGRAM: <a href='https://t.me/URS_LUCIFER' target='_blank' class='author-link'>LUCIFER</a></p>
+    <div class="welcome-message">THIS IS FREE BATCH LUCIFER</div>
+    <p>JOIN TELEGRAM: <a href='https//t.me/urs_lucifer' target='_blank' class='author-link'>LUCIFER♡</a></p>
 '''
 
     try:
@@ -326,6 +339,11 @@ def generate_html(data, output_file_path, input_file_name, failed_links):
 
         
 
+        html_content += '''
+<div class="float-name">LUCIFER♡</div>
+</body>
+</html>
+'''
         with open(output_file_path, 'w', encoding='utf-8') as file:
             file.write(html_content)
     except Exception as e:
