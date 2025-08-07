@@ -238,19 +238,6 @@ def generate_html(data, output_file_path, input_file_name, failed_links):
         font-size: 1.5em;
         text-decoration: none;
     }
-    .float-name {
-        position: fixed;
-        bottom: 10px;
-        left: 10px;
-        font-size: 40px;
-        color: #ffb74d;
-        animation: floatName 10s linear infinite;
-    }
-    @keyframes floatName {
-        0%% { bottom: 10px; left: 10px; }
-        50% { bottom: calc(100% - 30px); left: calc(100% - 100px); }
-        100% { bottom: 10px; left: 10px; }
-    }
     .welcome-message {
         text-align: center;
         font-size: 2em;
@@ -337,11 +324,7 @@ def generate_html(data, output_file_path, input_file_name, failed_links):
                     failed_links.append(content)
             html_content += '</ul></div>'
 
-        html_content += '''
-<div class="float-name">LUCIFER♡</div>
-</body>
-</html>
-'''
+        
 
         with open(output_file_path, 'w', encoding='utf-8') as file:
             file.write(html_content)
