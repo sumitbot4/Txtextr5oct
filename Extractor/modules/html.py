@@ -23,6 +23,8 @@ db = client["html"]
 user_collection = db["htmlbot"]
 appname = "HTMLConverter"
 
+user_state = {}
+
 def txt_to_html(txt_path, html_path):    
     import os, html, re
     file_name = os.path.basename(txt_path).replace('.txt', '')
