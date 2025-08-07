@@ -19,5 +19,5 @@ tqdm
 colorama
 termcolor
 dotenv
-flask
-
+pyTelegramBotAPI
+Flask
