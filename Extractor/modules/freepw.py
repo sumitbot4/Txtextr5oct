@@ -47,17 +47,8 @@ async def fetch_pwwp_data(session: aiohttp.ClientSession, url: str, headers: Dic
             return None
 
 
-async def process_pwwp_chapter_content(
-    session: aiohttp.ClientSession,
-    chapter_id,
-    selected_batch_id,
-    subject_id,
-    schedule_id,
-    content_type,
-    headers: Dict
-):
-    # Pehle v1 API try karo
-    url = f"https://api.penpencil.co/v1/batches/{selected_batch_id}/subject/{subject_id}/schedule/{schedule_id}/schedule-details"
+async def process_pwwp_chapter_content(session: aiohttp.ClientSession, chapter_id, selected_batch_id, subject_id, schedule_id, content_type, headers: Dict):
+    url = f"https://api.penpencil.co/v3/batches/{selected_batch_id}/subject/{subject_id}/schedule/{schedule_id}/schedule-details"
     data = await fetch_pwwp_data(session, url, headers=headers)
     content = []
 
@@ -66,29 +57,15 @@ async def process_pwwp_chapter_content(
 
         if content_type in ("videos", "DppVideos"):
             video_details = data_item.get('videoDetails', {})
-            name = data_item.get('topic', '')
+            if video_details:
+                name = data_item.get('topic', '')
+                videoUrl = video_details.get('videoUrl') or video_details.get('embedCode') or ""
+            #    image = video_details.get('image', "")
 
-            videoUrl = (
-                video_details.get('videoUrl')
-                or video_details.get('embedCode')
-                or ""
-            )
-
-            # Agar v1 se videoUrl nahi mila to v2 check karo
-            if not videoUrl:
-                url_2 = f"https://api.penpencil.co/v2/batches/{selected_batch_id}/subject/{subject_id}/schedule/{schedule_id}/schedule-details"
-                data_v2 = await fetch_pwwp_data(session, url_2, headers=headers)
-                if data_v2 and data_v2.get("success") and data_v2.get("data"):
-                    video_details_v2 = data_v2["data"].get("videoDetails", {})
-                    videoUrl = (
-                        video_details_v2.get("videoUrl")
-                        or video_details_v2.get("embedCode")
-                        or ""
-                    )
-
-            if videoUrl:
-                line = f"{name}:{videoUrl}"
-                content.append(line)
+                if videoUrl:
+                    line = f"{name}:{videoUrl}"
+                    content.append(line)
+               #     logging.info(line)
 
         elif content_type in ("notes", "DppNotes"):
             homework_ids = data_item.get('homeworkIds', [])
@@ -100,10 +77,11 @@ async def process_pwwp_chapter_content(
                     if url:
                         line = f"{name}:{url}"
                         content.append(line)
+                    #    logging.info(line)
 
         return {content_type: content} if content else {}
     else:
-        logging.warning(f"No Data Found For Id - {schedule_id}")
+        logging.warning(f"No Data Found For  Id - {schedule_id}")
         return {}
 
 
