@@ -16,14 +16,14 @@ BOT_TEXT = "TXT EXTRACTOR"
 OWNER_ID = int(os.environ.get("OWNER_ID", "7764674199"))
 # ------------------------------------------------
 # //LOG CHANNEL ID 
-CHANNEL_ID = int(os.environ.get("CHANNEL_ID", "-1002610898117"))
+CHANNEL_ID = int(os.environ.get("CHANNEL_ID", "-1002627220799"))
 
 # //FORCE_CHANNEL_ID
 #CHANNEL_ID2 = int(os.environ.get("CHANNEL_ID2", "-1002799217873")) 
 # -----------------------------------------------
 MONGO_URL = os.environ.get("MONGO_URL")
 # -----------------------------------------------
-PREMIUM_LOGS = int(os.environ.get("PREMIUM_LOGS", "-1002844381920"))
+PREMIUM_LOGS = int(os.environ.get("PREMIUM_LOGS", "-1003158839660"))
 # -----------------------------------------------
 join = '<a href="https://t.me/urs_lucifer">✳️ Bᴀᴄᴋᴜᴘ</a>'
 # -----------------------------------------------
